@@ -1,0 +1,30 @@
+skill,level,prerequisites,duration_hours,resource_type,course_title,course_description
+python,beginner,,15,course,Python Fundamentals,Learn Python syntax variables loops functions and beginner problem solving.
+sql,beginner,,12,course,SQL Basics,Learn SELECT WHERE ORDER BY JOINS and database fundamentals.
+git,beginner,,4,tutorial,Git Essentials,Learn version control with init add commit push branch and merge.
+github,beginner,git,3,tutorial,GitHub Basics,Learn repositories pull requests issues collaboration and remote workflows.
+html,beginner,,6,course,HTML Fundamentals,Learn semantic HTML forms tables headings links and page structure.
+css,beginner,html,8,course,CSS Fundamentals,Learn styling layouts flexbox grid and responsive design.
+javascript,beginner,html|css,14,course,JavaScript Basics,Learn DOM events variables arrays functions and ES6 features.
+oop,beginner,,10,course,Object Oriented Programming,Learn classes objects inheritance polymorphism abstraction and encapsulation.
+api,beginner,python,6,tutorial,REST API Basics,Learn API requests JSON endpoints GET POST and integrations.
+flask,intermediate,python,10,project,Flask Web Development,Build web apps using routes templates forms and APIs.
+django,intermediate,python,14,project,Django Web Development,Learn models views templates authentication and scalable backend.
+numpy,beginner,python,8,course,NumPy for Data Science,Learn arrays indexing vectorization math operations and numerical computing.
+pandas,beginner,python,10,course,Pandas for Data Analysis,Learn DataFrames cleaning grouping filtering and CSV operations.
+data structures,intermediate,python|c++,20,course,Data Structures Foundations,Learn arrays linked lists stacks queues trees heaps and graphs.
+algorithms,intermediate,data structures,22,course,Algorithms Foundations,Learn sorting searching recursion greedy graph algorithms and dynamic programming.
+machine learning,intermediate,python|numpy|pandas,25,course,Machine Learning Fundamentals,Learn supervised learning regression classification model evaluation and feature engineering.
+deep learning,advanced,machine learning,30,course,Deep Learning Essentials,Learn neural networks backpropagation CNNs and deep learning workflows.
+nlp,advanced,python|machine learning,20,course,NLP Fundamentals,Learn tokenization text preprocessing embeddings and text classification.
+tensorflow,advanced,python|deep learning,18,project,TensorFlow Essentials,Build and train neural network models using TensorFlow.
+pytorch,advanced,python|deep learning,18,project,PyTorch Essentials,Learn tensors datasets training loops and deep learning experimentation.
+java,beginner,,16,course,Java Fundamentals,Learn Java syntax OOP collections and exception handling.
+kotlin,beginner,,18,course,Kotlin Fundamentals,Learn Kotlin syntax null safety functions classes and Android basics.
+android development,intermediate,kotlin,20,project,Android Development Basics,Understand app lifecycle UI components navigation and app structure.
+jetpack compose,intermediate,kotlin|android development,15,project,Jetpack Compose UI,Build modern Android UIs using composables state and layouts.
+firebase,intermediate,kotlin|android development,12,project,Firebase for Apps,Learn authentication Firestore and backend support for apps.
+react,intermediate,javascript,18,project,React Fundamentals,Learn components props state hooks and frontend architecture.
+c++,beginner,,18,course,C++ Fundamentals,Learn C++ syntax STL OOP and problem solving.
+mysql,beginner,sql,8,course,MySQL Basics,Learn schema design CRUD joins and relational database use cases.
+mongodb,beginner,,10,course,MongoDB Basics,Learn NoSQL collections documents CRUD and schema flexibility.

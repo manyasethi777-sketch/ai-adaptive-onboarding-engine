@@ -3,28 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adaptive Learning Path Generator</title>
+    <title>Adaptive Learning Path Generator - Hackathon Final</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
 <div class="container">
-    <h1>🚀 Adaptive Learning Path Generator</h1>
-    <p class="subtitle">Upload your resume content and job description to get a personalized learning roadmap.</p>
+    <div class="hero">
+        <h1>🚀 Adaptive Learning Path Generator</h1>
+        <p>
+            Upload a resume PDF or paste resume text, add a target job description,
+            and generate a dependency-aware personalized learning roadmap.
+        </p>
+    </div>
 
-    <form action="/analyze" method="POST">
-        <div class="input-group">
-            <label for="resume">Paste Resume Text</label>
-            <textarea name="resume" id="resume" rows="10" placeholder="Paste your resume content here..." required></textarea>
+    <form action="/analyze" method="POST" enctype="multipart/form-data" class="main-form">
+        <div class="card">
+            <h2>📄 Resume Input</h2>
+            <label>Paste Resume Text (Optional)</label>
+            <textarea name="resume_text" rows="8" placeholder="Paste your resume content here..."></textarea>
+
+            <label>Upload Resume PDF (Optional)</label>
+            <input type="file" name="resume_pdf" accept=".pdf">
+            <small>You can use either resume text, PDF, or both.</small>
         </div>
 
-        <div class="input-group">
-            <label for="job">Paste Job Description</label>
-            <textarea name="job" id="job" rows="10" placeholder="Paste job description here..." required></textarea>
+        <div class="card">
+            <h2>🎯 Job Description Input</h2>
+            <label>Paste Target Job Description</label>
+            <textarea name="job_text" rows="10" placeholder="Paste the job description here..." required></textarea>
         </div>
 
-        <button type="submit">Analyze & Generate Roadmap</button>
+        <button type="submit" class="btn-primary">Analyze & Generate Adaptive Roadmap</button>
     </form>
+
+    <div class="info-grid">
+        <div class="mini-card">
+            <h3>Skill Gap Analysis</h3>
+            <p>Finds missing skills between your resume and target role.</p>
+        </div>
+        <div class="mini-card">
+            <h3>Adaptive Logic</h3>
+            <p>Automatically adds prerequisites and orders learning intelligently.</p>
+        </div>
+        <div class="mini-card">
+            <h3>Metrics Dashboard</h3>
+            <p>Shows match %, gap count, hours, dependency score, and mastery hints.</p>
+        </div>
+    </div>
 </div>
 
 </body>
