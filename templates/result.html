@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Roadmap Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 Analysis Result</h1>
+
+    <div class="card highlight">
+        <h2>Job Match Score</h2>
+        <p class="big-score">{{ match_percentage }}%</p>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>✅ Skills in Resume</h2>
+            {% if resume_skills %}
+                <ul>
+                    {% for skill in resume_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recognized skills found.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>🎯 Skills Required in Job</h2>
+            {% if job_skills %}
+                <ul>
+                    {% for skill in job_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recognized job skills found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>🟢 Matching Skills</h2>
+            {% if matched_skills %}
+                <ul>
+                    {% for skill in matched_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No matching skills found.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>🔴 Missing Skills</h2>
+            {% if missing_skills %}
+                <ul>
+                    {% for skill in missing_skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No missing skills. Great match!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🛣️ Personalized Learning Roadmap</h2>
+        {% if roadmap %}
+            <div class="roadmap">
+                {% for item in roadmap %}
+                    <div class="roadmap-step">
+                        <div class="step-number">Step {{ item.step }}</div>
+                        <div class="step-content">
+                            <h3>{{ item.skill }}</h3>
+                            <p>{{ item.description }}</p>
+                            <small><strong>Why recommended?</strong> This skill is required in the job description but missing from your resume.</small>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>🎉 You already match all identified job skills!</p>
+        {% endif %}
+    </div>
+
+    <div class="back-btn">
+        <a href="/">← Analyze Another Resume</a>
+    </div>
+</div>
+
+</body>
+</html>
