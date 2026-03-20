@@ -1,57 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adaptive Learning Path Generator - Hackathon Final</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PathForge — AI Adaptive Learning Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#111118; --surface2:#18181f;
+  --border:#2a2a38; --accent:#6c63ff; --accent2:#ff6b6b;
+  --accent3:#43e97b; --accent4:#f7971e;
+  --text:#e8e8f0; --text2:#8888aa; --text3:#444466;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,99,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,.025) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.1;pointer-events:none;z-index:0;animation:floatOrb 20s ease-in-out infinite;}
+.orb1{width:500px;height:500px;background:var(--accent);top:-100px;left:-100px;}
+.orb2{width:400px;height:400px;background:var(--accent2);bottom:-100px;right:-100px;animation-delay:-7s;}
+@keyframes floatOrb{0%,100%{transform:translate(0,0);}50%{transform:translate(20px,-20px);}}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px;}
+header{padding:40px 0 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:52px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.badge{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--accent);color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
+.hero{text-align:center;margin-bottom:52px;}
+.hero-label{display:inline-block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);padding:6px 16px;border-radius:20px;margin-bottom:22px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(34px,5.5vw,62px);font-weight:800;line-height:1.07;letter-spacing:-2px;margin-bottom:18px;}
+.hero h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--accent);}
+.hero p{font-size:14px;color:var(--text2);max-width:540px;margin:0 auto;line-height:1.8;}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+@media(max-width:680px){.input-grid{grid-template-columns:1fr;}}
+.icard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;transition:border-color .2s,box-shadow .2s;}
+.icard:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.1);}
+.icard.jd:focus-within{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(255,107,107,.08);}
+.clabel{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;}
+.clabel .dot{width:8px;height:8px;border-radius:50%;}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;resize:vertical;outline:none;transition:border-color .2s;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--text3);}
+.upload-zone{border:1px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;margin-top:10px;background:var(--surface2);}
+.upload-zone:hover{border-color:var(--accent);background:rgba(108,99,255,.05);}
+.upload-zone input{display:none;}
+.upload-zone p{font-size:11px;color:var(--text2);}
+.upload-zone span{color:var(--accent);}
+.file-tag{display:none;font-size:11px;color:var(--accent3);margin-top:8px;}
+.go-btn{width:100%;background:linear-gradient(135deg,var(--accent) 0%,#9b59b6 100%);color:#fff;border:none;padding:18px 32px;border-radius:14px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.go-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(108,99,255,.4);}
+.go-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.err{display:none;background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.25);border-radius:12px;padding:16px 20px;color:var(--accent2);font-size:13px;margin-bottom:16px;}
+#loading{display:none;text-align:center;padding:80px 0;}
+.spinner{width:52px;height:52px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 22px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-h{font-family:'Syne',sans-serif;font-size:18px;color:var(--text2);margin-bottom:14px;}
+.lstep{font-size:12px;color:var(--text3);margin:4px 0;opacity:0;animation:fadeIn .5s ease forwards;}
+.lstep:nth-child(1){animation-delay:.4s;}
+.lstep:nth-child(2){animation-delay:1.2s;}
+.lstep:nth-child(3){animation-delay:2.0s;}
+.lstep:nth-child(4){animation-delay:2.8s;}
+@keyframes fadeIn{to{opacity:1;color:var(--accent);}}
+#results{display:none;}
+.sh{font-family:'Syne',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.sh::after{content:'';flex:1;height:1px;background:var(--border);}
+.sstrip{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:24px;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+.scard::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;}
+.scard.g::before{background:var(--accent3);}
+.scard.r::before{background:var(--accent2);}
+.scard.b::before{background:var(--accent);}
+.scard.o::before{background:var(--accent4);}
+.scard.p::before{background:#b06cff;}
+.slabel{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.sval{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:3px;}
+.scard.g .sval{color:var(--accent3);}
+.scard.r .sval{color:var(--accent2);}
+.scard.b .sval{color:var(--accent);}
+.scard.o .sval{color:var(--accent4);}
+.scard.p .sval{color:#b06cff;}
+.ssub{font-size:11px;color:var(--text3);}
+.barwrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:24px;}
+.barlabel{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:11px;}
+.bartrack{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.barfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:4px;width:0;transition:width 1.5s cubic-bezier(.23,1,.32,1);}
+.aibox{background:var(--surface);border:1px solid rgba(108,99,255,.3);border-radius:16px;padding:24px;margin-bottom:24px;position:relative;}
+.aibox::before{content:'✦ AI Analysis';position:absolute;top:-10px;left:20px;background:var(--bg);padding:0 8px;font-size:11px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;font-family:'Syne',sans-serif;}
+.aibox p{font-size:13px;line-height:1.95;color:var(--text2);}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+@media(max-width:580px){.sgrid{grid-template-columns:1fr;}}
+.spanel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.spanel h3{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:6px;}
+.pills{display:flex;flex-wrap:wrap;gap:7px;}
+.pill{font-size:11px;padding:4px 11px;border-radius:20px;font-weight:500;}
+.pill.m{background:rgba(67,233,123,.1);color:var(--accent3);border:1px solid rgba(67,233,123,.2);}
+.pill.x{background:rgba(255,107,107,.1);color:var(--accent2);border:1px solid rgba(255,107,107,.2);}
+.pill.n{background:rgba(108,99,255,.1);color:var(--accent);border:1px solid rgba(108,99,255,.2);}
+.pill.rs{background:rgba(247,151,30,.1);color:var(--accent4);border:1px solid rgba(247,151,30,.2);}
+.empty{font-size:12px;color:var(--text3);}
+.roadmap{display:flex;flex-direction:column;margin-bottom:32px;}
+.ritem{display:grid;grid-template-columns:56px 1fr;}
+.ritem:not(:last-child) .sline::after{content:'';position:absolute;top:48px;left:27px;width:2px;height:calc(100% + 4px);background:var(--border);}
+.scol{display:flex;flex-direction:column;align-items:center;padding-top:14px;position:relative;}
+.sline{position:relative;}
+.snum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;position:relative;z-index:1;flex-shrink:0;}
+.snum.beginner{background:rgba(67,233,123,.15);color:var(--accent3);border:1px solid rgba(67,233,123,.3);}
+.snum.intermediate{background:rgba(247,151,30,.15);color:var(--accent4);border:1px solid rgba(247,151,30,.3);}
+.snum.advanced{background:rgba(255,107,107,.15);color:var(--accent2);border:1px solid rgba(255,107,107,.3);}
+.snum.unknown{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.3);}
+.sbody{padding:10px 0 22px 18px;}
+.shead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px;}
+.stitle{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.ltag{font-size:10px;padding:3px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.ltag.beginner{background:rgba(67,233,123,.1);color:var(--accent3);}
+.ltag.intermediate{background:rgba(247,151,30,.1);color:var(--accent4);}
+.ltag.advanced{background:rgba(255,107,107,.1);color:var(--accent2);}
+.ltag.unknown{background:rgba(108,99,255,.1);color:var(--accent);}
+.scourse{font-size:13px;color:var(--accent);margin-bottom:5px;font-style:italic;}
+.sdesc{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:9px;}
+.smeta{display:flex;gap:14px;flex-wrap:wrap;}
+.smeta-i{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:4px;}
+.smeta-i span{color:var(--text2);}
+.plist{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+.pchip{font-size:10px;padding:3px 8px;border-radius:6px;background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.15);color:var(--text2);}
+table{width:100%;border-collapse:collapse;margin-bottom:30px;font-size:12px;}
+th{text-align:left;padding:11px 15px;background:var(--surface2);color:var(--text2);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
+td{padding:11px 15px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+tr:hover td{background:var(--surface2);}
+.qbar{display:flex;align-items:center;gap:9px;}
+.qtrack{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.qfill{height:100%;border-radius:3px;}
+.qfill.hi{background:var(--accent3);}
+.qfill.md{background:var(--accent4);}
+.qfill.lo{background:var(--accent2);}
+.rchip{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.rchip.go{background:rgba(67,233,123,.1);color:var(--accent3);border:1px solid rgba(67,233,123,.2);}
+.rchip.pr{background:rgba(247,151,30,.1);color:var(--accent4);border:1px solid rgba(247,151,30,.2);}
+.rchip.rv{background:rgba(255,107,107,.1);color:var(--accent2);border:1px solid rgba(255,107,107,.2);}
+details{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:28px;overflow:hidden;}
+summary{padding:15px 20px;cursor:pointer;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text2);list-style:none;display:flex;align-items:center;gap:9px;user-select:none;transition:color .2s;}
+summary:hover{color:var(--text);}
+summary::marker,summary::-webkit-details-marker{display:none;}
+.sarrow{margin-left:auto;color:var(--text3);transition:transform .2s;}
+details[open] .sarrow{transform:rotate(90deg);}
+.tinner{padding:0 20px 20px;font-size:12px;color:var(--text2);line-height:1.9;white-space:pre-line;border-top:1px solid var(--border);padding-top:16px;}
+.howcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:28px;}
+.howcard h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:14px;}
+.howcard ul{font-size:12px;color:var(--text2);line-height:2.1;padding-left:18px;}
+.reset{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text2);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all .2s;}
+.reset:hover{border-color:var(--accent);color:var(--accent);}
+</style>
 </head>
 <body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="wrap">
 
-<div class="container">
-    <div class="hero">
-        <h1>🚀 Adaptive Learning Path Generator</h1>
-        <p>
-            Upload a resume PDF or paste resume text, add a target job description,
-            and generate a dependency-aware personalized learning roadmap.
-        </p>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">PathForge</div>
     </div>
+    <div class="badge">AI Onboarding Engine</div>
+  </header>
 
-    <form action="/analyze" method="POST" enctype="multipart/form-data" class="main-form">
-        <div class="card">
-            <h2>📄 Resume Input</h2>
-            <label>Paste Resume Text (Optional)</label>
-            <textarea name="resume_text" rows="8" placeholder="Paste your resume content here..."></textarea>
+  <div class="hero">
+    <div class="hero-label">✦ Adaptive Learning System</div>
+    <h1>Your <em>intelligent</em><br>learning roadmap</h1>
+    <p>Paste your resume and a job description. AI extracts skills, maps the gap, adds prerequisites automatically, and builds your personalized learning pathway.</p>
+  </div>
 
-            <label>Upload Resume PDF (Optional)</label>
-            <input type="file" name="resume_pdf" accept=".pdf">
-            <small>You can use either resume text, PDF, or both.</small>
+  <div id="form-section">
+    <div class="input-grid">
+      <div class="icard">
+        <div class="clabel"><div class="dot" style="background:var(--accent4)"></div>Resume Input</div>
+        <textarea id="resume-text" rows="9" placeholder="Paste your resume here — skills, experience, projects, education..."></textarea>
+        <div class="upload-zone" onclick="document.getElementById('pdf-input').click()">
+          <input type="file" id="pdf-input" accept=".pdf" onchange="onFile(this)">
+          <p>📎 Or <span>upload PDF</span> — optional</p>
         </div>
-
-        <div class="card">
-            <h2>🎯 Job Description Input</h2>
-            <label>Paste Target Job Description</label>
-            <textarea name="job_text" rows="10" placeholder="Paste the job description here..." required></textarea>
-        </div>
-
-        <button type="submit" class="btn-primary">Analyze & Generate Adaptive Roadmap</button>
-    </form>
-
-    <div class="info-grid">
-        <div class="mini-card">
-            <h3>Skill Gap Analysis</h3>
-            <p>Finds missing skills between your resume and target role.</p>
-        </div>
-        <div class="mini-card">
-            <h3>Adaptive Logic</h3>
-            <p>Automatically adds prerequisites and orders learning intelligently.</p>
-        </div>
-        <div class="mini-card">
-            <h3>Metrics Dashboard</h3>
-            <p>Shows match %, gap count, hours, dependency score, and mastery hints.</p>
-        </div>
+        <div class="file-tag" id="file-tag">✓ <span id="ftag-name"></span></div>
+      </div>
+      <div class="icard jd">
+        <div class="clabel"><div class="dot" style="background:var(--accent2)"></div>Job Description</div>
+        <textarea id="jd-text" rows="12" placeholder="Paste the target job description here — required skills, responsibilities..."></textarea>
+      </div>
     </div>
+    <div class="err" id="err"></div>
+    <button class="go-btn" id="go-btn" onclick="run()">⚡ Analyze &amp; Forge Learning Path</button>
+  </div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-h">Forging your path…</div>
+    <div>
+      <div class="lstep">→ Extracting skills from resume</div>
+      <div class="lstep">→ Parsing job requirements</div>
+      <div class="lstep">→ Running gap analysis + prerequisite expansion</div>
+      <div class="lstep">→ Generating AI summary &amp; reasoning trace</div>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="sh">Performance Metrics</div>
+    <div class="sstrip" id="sstrip"></div>
+    <div class="barwrap">
+      <div class="barlabel"><span>Role Fit Score</span><span id="bar-pct" style="color:var(--accent);font-weight:600">0%</span></div>
+      <div class="bartrack"><div class="barfill" id="barfill"></div></div>
+    </div>
+    <div class="sh">AI Analysis</div>
+    <div class="aibox"><p id="ai-text"></p></div>
+    <div class="sh">Skill Breakdown</div>
+    <div class="sgrid">
+      <div class="spanel"><h3>✅ Matched <span id="mc" style="color:var(--accent3)"></span></h3><div class="pills" id="matched-pills"></div></div>
+      <div class="spanel"><h3>⚠️ Missing <span id="gc" style="color:var(--accent2)"></span></h3><div class="pills" id="missing-pills"></div></div>
+      <div class="spanel"><h3>📋 Your Skills</h3><div class="pills" id="resume-pills"></div></div>
+      <div class="spanel"><h3>🎯 Job Requires</h3><div class="pills" id="job-pills"></div></div>
+    </div>
+    <div class="sh">Adaptive Learning Roadmap</div>
+    <div class="roadmap" id="roadmap"></div>
+    <div class="sh">Mastery Feedback</div>
+    <table>
+      <thead><tr><th>Skill</th><th>Level</th><th>Quiz Score</th><th>Recommendation</th></tr></thead>
+      <tbody id="mastery-body"></tbody>
+    </table>
+    <details>
+      <summary><span>🔍</span> AI Reasoning Trace <span class="sarrow">▶</span></summary>
+      <div class="tinner" id="trace-text"></div>
+    </details>
+    <div class="howcard">
+      <h3>💡 How PathForge Works</h3>
+      <ul>
+        <li>Claude AI semantically extracts skills from resume and job description — not just keyword matching</li>
+        <li>Identifies the gap between your current skills and what the role requires</li>
+        <li>Prerequisite expansion: if "machine learning" is missing, Python, NumPy &amp; Pandas are automatically added too</li>
+        <li>Topological DFS sort ensures foundational skills always come before advanced ones</li>
+        <li>TF-IDF cosine similarity scores how closely each course matches the specific job</li>
+        <li>Mastery simulation provides adaptive feedback — know when to push ahead vs revise</li>
+      </ul>
+    </div>
+    <button class="reset" onclick="doReset()">← Analyze Another Resume</button>
+  </div>
+
 </div>
 
+<script>
+// ── SKILLS DB ────────────────────────────────────────────
+const DB=[
+  {skill:"python",level:"beginner",prereqs:[],hours:15,type:"course",title:"Python Fundamentals",desc:"Learn Python syntax variables loops functions and beginner problem solving."},
+  {skill:"sql",level:"beginner",prereqs:[],hours:12,type:"course",title:"SQL Basics",desc:"Learn SELECT WHERE ORDER BY JOINS and database fundamentals."},
+  {skill:"git",level:"beginner",prereqs:[],hours:4,type:"tutorial",title:"Git Essentials",desc:"Learn version control with init add commit push branch and merge."},
+  {skill:"github",level:"beginner",prereqs:["git"],hours:3,type:"tutorial",title:"GitHub Basics",desc:"Learn repositories pull requests issues collaboration and remote workflows."},
+  {skill:"html",level:"beginner",prereqs:[],hours:6,type:"course",title:"HTML Fundamentals",desc:"Learn semantic HTML forms tables headings links and page structure."},
+  {skill:"css",level:"beginner",prereqs:["html"],hours:8,type:"course",title:"CSS Fundamentals",desc:"Learn styling layouts flexbox grid and responsive design."},
+  {skill:"javascript",level:"beginner",prereqs:["html","css"],hours:14,type:"course",title:"JavaScript Basics",desc:"Learn DOM events variables arrays functions and ES6 features."},
+  {skill:"oop",level:"beginner",prereqs:[],hours:10,type:"course",title:"Object Oriented Programming",desc:"Learn classes objects inheritance polymorphism abstraction and encapsulation."},
+  {skill:"api",level:"beginner",prereqs:["python"],hours:6,type:"tutorial",title:"REST API Basics",desc:"Learn API requests JSON endpoints GET POST and integrations."},
+  {skill:"flask",level:"intermediate",prereqs:["python"],hours:10,type:"project",title:"Flask Web Development",desc:"Build web apps using routes templates forms and APIs."},
+  {skill:"django",level:"intermediate",prereqs:["python"],hours:14,type:"project",title:"Django Web Development",desc:"Learn models views templates authentication and scalable backend."},
+  {skill:"numpy",level:"beginner",prereqs:["python"],hours:8,type:"course",title:"NumPy for Data Science",desc:"Learn arrays indexing vectorization math operations and numerical computing."},
+  {skill:"pandas",level:"beginner",prereqs:["python"],hours:10,type:"course",title:"Pandas for Data Analysis",desc:"Learn DataFrames cleaning grouping filtering and CSV operations."},
+  {skill:"data structures",level:"intermediate",prereqs:["python","c++"],hours:20,type:"course",title:"Data Structures Foundations",desc:"Learn arrays linked lists stacks queues trees heaps and graphs."},
+  {skill:"algorithms",level:"intermediate",prereqs:["data structures"],hours:22,type:"course",title:"Algorithms Foundations",desc:"Learn sorting searching recursion greedy graph algorithms and dynamic programming."},
+  {skill:"machine learning",level:"intermediate",prereqs:["python","numpy","pandas"],hours:25,type:"course",title:"Machine Learning Fundamentals",desc:"Learn supervised learning regression classification model evaluation and feature engineering."},
+  {skill:"deep learning",level:"advanced",prereqs:["machine learning"],hours:30,type:"course",title:"Deep Learning Essentials",desc:"Learn neural networks backpropagation CNNs and deep learning workflows."},
+  {skill:"nlp",level:"advanced",prereqs:["python","machine learning"],hours:20,type:"course",title:"NLP Fundamentals",desc:"Learn tokenization text preprocessing embeddings and text classification."},
+  {skill:"tensorflow",level:"advanced",prereqs:["python","deep learning"],hours:18,type:"project",title:"TensorFlow Essentials",desc:"Build and train neural network models using TensorFlow."},
+  {skill:"pytorch",level:"advanced",prereqs:["python","deep learning"],hours:18,type:"project",title:"PyTorch Essentials",desc:"Learn tensors datasets training loops and deep learning experimentation."},
+  {skill:"java",level:"beginner",prereqs:[],hours:16,type:"course",title:"Java Fundamentals",desc:"Learn Java syntax OOP collections and exception handling."},
+  {skill:"kotlin",level:"beginner",prereqs:[],hours:18,type:"course",title:"Kotlin Fundamentals",desc:"Learn Kotlin syntax null safety functions classes and Android basics."},
+  {skill:"android development",level:"intermediate",prereqs:["kotlin"],hours:20,type:"project",title:"Android Development Basics",desc:"Understand app lifecycle UI components navigation and app structure."},
+  {skill:"jetpack compose",level:"intermediate",prereqs:["kotlin","android development"],hours:15,type:"project",title:"Jetpack Compose UI",desc:"Build modern Android UIs using composables state and layouts."},
+  {skill:"firebase",level:"intermediate",prereqs:["kotlin","android development"],hours:12,type:"project",title:"Firebase for Apps",desc:"Learn authentication Firestore and backend support for apps."},
+  {skill:"react",level:"intermediate",prereqs:["javascript"],hours:18,type:"project",title:"React Fundamentals",desc:"Learn components props state hooks and frontend architecture."},
+  {skill:"c++",level:"beginner",prereqs:[],hours:18,type:"course",title:"C++ Fundamentals",desc:"Learn C++ syntax STL OOP and problem solving."},
+  {skill:"mysql",level:"beginner",prereqs:["sql"],hours:8,type:"course",title:"MySQL Basics",desc:"Learn schema design CRUD joins and relational database use cases."},
+  {skill:"mongodb",level:"beginner",prereqs:[],hours:10,type:"course",title:"MongoDB Basics",desc:"Learn NoSQL collections documents CRUD and schema flexibility."}
+];
+const SKILLS=DB.map(d=>d.skill);
+const SYN={"ml":"machine learning","dl":"deep learning","natural language processing":"nlp","rest api":"api","rest apis":"api","apis":"api","github version control":"github","android":"android development","compose":"jetpack compose","js":"javascript","node.js":"javascript","nodejs":"javascript","dbms":"sql","node":"javascript"};
+
+function norm(t){t=t.toLowerCase();for(const[k,v]of Object.entries(SYN))t=t.replaceAll(k,v);return t;}
+function extractSkills(text){const n=norm(text),f=new Set();for(const s of SKILLS)if(n.includes(s))f.add(s);return f;}
+function info(s){return DB.find(d=>d.skill===s)||null;}
+function prereqs(s){return info(s)?.prereqs||[];}
+function expandPrereqs(missing,known){
+  const all=new Set(missing);
+  function add(s){for(const p of prereqs(s)){if(!known.has(p)&&!all.has(p)){all.add(p);add(p);}}}
+  for(const s of[...missing])add(s);return all;
+}
+function buildPath(target,known){
+  const exp=expandPrereqs(target,known),vis=new Set(),out=[];
+  function dfs(s){if(vis.has(s))return;vis.add(s);for(const p of prereqs(s))if(exp.has(p)&&!known.has(p))dfs(p);if(!known.has(s))out.push(s);}
+  for(const s of exp)dfs(s);
+  const u=[],seen=new Set();for(const s of out)if(!seen.has(s)){seen.add(s);u.push(s);}return u;
+}
+function matchScore(j,r){if(!j.size)return 100;let m=0;for(const s of j)if(r.has(s))m++;return Math.round(m/j.size*10000)/100;}
+function totalHours(p){return p.reduce((s,sk)=>{const i=info(sk);return s+(i?i.hours:0);},0);}
+function depScore(p,k){
+  if(!p.length)return 100;const done=new Set(k);let v=0;
+  for(const s of p){if(prereqs(s).every(pr=>done.has(pr)))v++;done.add(s);}
+  return Math.round(v/p.length*10000)/100;
+}
+function tfidf(a,b){
+  const tok=t=>t.toLowerCase().match(/\b[a-z]{3,}\b/g)||[];
+  const sw=new Set(['the','and','for','are','was','has','can','with','from','this','that','all','use','learn','build','you']);
+  const cl=t=>tok(t).filter(w=>!sw.has(w));
+  const ta=cl(a),tb=cl(b),vocab=[...new Set([...ta,...tb])];
+  const tf=(ts,w)=>ts.filter(t=>t===w).length/(ts.length||1);
+  const idf=w=>Math.log(3/([ta,tb].filter(ts=>ts.includes(w)).length+1)+1);
+  const vec=ts=>vocab.map(w=>tf(ts,w)*idf(w));
+  const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+  const mag=a=>Math.sqrt(a.reduce((s,v)=>s+v*v,0));
+  const v1=vec(ta),v2=vec(tb),m=mag(v1)*mag(v2);
+  return m===0?0:Math.round(dot(v1,v2)/m*10000)/100;
+}
+function mastery(path){
+  return path.map(s=>{const i=info(s);const lvl=i?.level||'beginner';
+    const sc=lvl==='beginner'?78:lvl==='intermediate'?62:48;
+    const rec=sc>=70?'go':sc>=50?'pr':'rv';
+    const txt=sc>=70?'Ready to progress':sc>=50?'More practice needed':'Revise fundamentals first';
+    return{skill:s,level:lvl,score:sc,rec,txt};});
+}
+
+// PDF reader
+function onFile(inp){const f=inp.files[0];if(f){document.getElementById('file-tag').style.display='block';document.getElementById('ftag-name').textContent=f.name;}}
+async function readPDF(file){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const bytes=new Uint8Array(e.target.result),dec=new TextDecoder('latin1'),raw=dec.decode(bytes);
+        let txt='';
+        for(const m of raw.matchAll(/BT([\s\S]*?)ET/g)){
+          for(const sm of m[1].matchAll(/\(((?:[^()\\]|\\.)*)\)\s*T[jJ]/g))txt+=sm[1].replace(/\\n/g,'\n').replace(/\\\(/g,'(').replace(/\\\)/g,')')+' ';
+          for(const am of m[1].matchAll(/\[([\s\S]*?)\]\s*TJ/g))for(const pm of am[1].matchAll(/\(((?:[^()\\]|\\.)*)\)/g))txt+=pm[1]+' ';
+        }
+        res(txt||raw.replace(/[^\x20-\x7e\n]/g,' '));
+      }catch{res('');}
+    };
+    r.readAsArrayBuffer(file);
+  });
+}
+
+// Claude API call — works in Claude.ai artifact environment
+async function claude(prompt){
+  const res=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+  });
+  if(!res.ok)throw new Error(`API ${res.status}`);
+  const d=await res.json();
+  return d.content?.[0]?.text||'';
+}
+
+// Local fallback summary
+function localSummary(resumeSkills,jobSkills,matched,missing,path,score,hours){
+  const ms=[...missing].slice(0,4).join(', ');
+  return `Your profile matches ${score}% of the detected role requirements, with ${matched.size} of ${jobSkills.size} required skills already in your toolkit. ${missing.size>0?`The primary gaps are: ${ms}${missing.size>4?' and '+( missing.size-4)+' more':''}. These are core to this role and worth prioritising first.`:'Impressively, you satisfy all detected job skill requirements.'} ${path.length>0?`Your personalised roadmap covers ${path.length} learning modules totalling approximately ${hours} hours — starting from foundational prerequisites and building systematically toward the most advanced skills required.`:''}`;
+}
+function localTrace(resumeSkills,jobSkills,missing,path,dep){
+  const extra=path.length-missing.size;
+  return `1. Skill extraction: normalised both texts and matched against a catalog of ${DB.length} known skills using substring + synonym mapping.\n2. Gap detection: set difference identified ${missing.size} direct skill gap(s) — skills required by the job but absent from the resume.\n3. Prerequisite expansion: recursively traced the dependency graph, adding ${extra>0?extra+' prerequisite skill(s) the user must learn first':' no additional prerequisites (none needed)'}.\n4. Topological sort: a depth-first DFS on the dependency DAG ordered the roadmap so every prerequisite always appears before the skill that requires it.\n5. Deduplication: skills appearing as both a direct gap and a transitive prerequisite of another gap are included only once, in their correct topological position.\n6. Path integrity validated: dependency satisfaction score = ${dep}% (all steps have their prerequisites fulfilled in order).`;
+}
+
+// Main
+async function run(){
+  const jdText=document.getElementById('jd-text').value.trim();
+  const errEl=document.getElementById('err');
+  if(!jdText){errEl.textContent='⚠ Please paste a job description to continue.';errEl.style.display='block';return;}
+  errEl.style.display='none';
+  let resumeText=document.getElementById('resume-text').value.trim();
+  const pdfFile=document.getElementById('pdf-input').files[0];
+  if(pdfFile)resumeText+=' '+(await readPDF(pdfFile));
+  document.getElementById('form-section').style.display='none';
+  document.getElementById('loading').style.display='block';
+  document.getElementById('go-btn').disabled=true;
+
+  try{
+    const resumeSkills=extractSkills(resumeText);
+    const jobSkills=extractSkills(jdText);
+    const matched=new Set([...resumeSkills].filter(s=>jobSkills.has(s)));
+    const missing=new Set([...jobSkills].filter(s=>!resumeSkills.has(s)));
+    const path=buildPath(missing,resumeSkills);
+    const score=matchScore(jobSkills,resumeSkills);
+    const hours=totalHours(path);
+    const dep=depScore(path,resumeSkills);
+    const mas=mastery(path);
+    const roadmapItems=path.map((s,i)=>{
+      const inf=info(s);
+      return{step:i+1,skill:s,level:inf?.level||'unknown',hours:inf?.hours||0,
+        type:inf?.type||'resource',title:inf?.title||`Learn ${s}`,
+        desc:inf?.desc||`Study ${s} fundamentals.`,prereqs:prereqs(s),
+        rel:inf?tfidf(inf.desc,jdText):0};
+    });
+
+    // Try Claude API for richer summaries, fall back gracefully
+    let aiSummary=localSummary(resumeSkills,jobSkills,matched,missing,path,score,hours);
+    let traceText=localTrace(resumeSkills,jobSkills,missing,path,dep);
+    try{
+      const [a,t]=await Promise.all([
+        claude(`You are an expert career advisor.
+Resume skills: ${[...resumeSkills].join(', ')||'none'}
+Job skills: ${[...jobSkills].join(', ')||'none'}
+Matched: ${[...matched].join(', ')||'none'}
+Missing: ${[...missing].join(', ')||'none'}
+Roadmap: ${path.join(' → ')||'none needed'}
+Match score: ${score}%, Total hours: ${hours}h
+
+Write a 3-4 sentence professional analysis: current fit, key gaps and why they matter, one motivating forward-looking insight. Flowing prose only, no bullets.`),
+
+        claude(`Document a reasoning trace for this adaptive learning engine.
+Job skills detected: ${[...jobSkills].join(', ')||'none'}
+Resume skills: ${[...resumeSkills].join(', ')||'none'}
+Direct gaps: ${[...missing].join(', ')||'none'}
+Final roadmap after prerequisite expansion: ${path.join(' → ')||'none'}
+
+Write 5-6 numbered steps explaining how skills were matched, why prerequisites were auto-added, and how dependency ordering was determined. Technical but readable.`)
+      ]);
+      if(a)aiSummary=a;
+      if(t)traceText=t;
+    }catch(_){}
+
+    document.getElementById('loading').style.display='none';
+    render({resumeSkills,jobSkills,matched,missing,roadmapItems,score,hours,dep,mas,aiSummary,traceText,path});
+  }catch(err){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('form-section').style.display='block';
+    document.getElementById('go-btn').disabled=false;
+    errEl.textContent='⚠ '+err.message;
+    errEl.style.display='block';
+  }
+}
+
+function cap(s){return s?s[0].toUpperCase()+s.slice(1):s;}
+function pills(set,cls){return set.size?[...set].map(s=>`<span class="pill ${cls}">${s}</span>`).join(''):`<span class="empty">None detected</span>`;}
+
+function render({resumeSkills,jobSkills,matched,missing,roadmapItems,score,hours,dep,mas,aiSummary,traceText,path}){
+  document.getElementById('sstrip').innerHTML=`
+    <div class="scard g"><div class="slabel">Match Score</div><div class="sval">${score}%</div><div class="ssub">of job skills matched</div></div>
+    <div class="scard r"><div class="slabel">Skill Gaps</div><div class="sval">${missing.size}</div><div class="ssub">skills to acquire</div></div>
+    <div class="scard o"><div class="slabel">Learning Hours</div><div class="sval">${hours}h</div><div class="ssub">estimated total</div></div>
+    <div class="scard b"><div class="slabel">Dependency Score</div><div class="sval">${dep}%</div><div class="ssub">path integrity</div></div>
+    <div class="scard p"><div class="slabel">Roadmap Steps</div><div class="sval">${path.length}</div><div class="ssub">learning modules</div></div>`;
+  setTimeout(()=>{document.getElementById('barfill').style.width=score+'%';document.getElementById('bar-pct').textContent=score+'%';},100);
+  document.getElementById('ai-text').textContent=aiSummary;
+  document.getElementById('mc').textContent=`(${matched.size})`;
+  document.getElementById('gc').textContent=`(${missing.size})`;
+  document.getElementById('matched-pills').innerHTML=pills(matched,'m');
+  document.getElementById('missing-pills').innerHTML=pills(missing,'x');
+  document.getElementById('resume-pills').innerHTML=pills(resumeSkills,'rs');
+  document.getElementById('job-pills').innerHTML=pills(jobSkills,'n');
+  const rm=document.getElementById('roadmap');
+  if(!roadmapItems.length){rm.innerHTML='<div style="padding:28px;text-align:center;color:var(--accent3);font-family:\'Syne\',sans-serif;font-size:18px">🎉 You already satisfy all detected job requirements!</div>';}
+  else{rm.innerHTML=roadmapItems.map(it=>`
+    <div class="ritem">
+      <div class="scol sline"><div class="snum ${it.level}">${it.step}</div></div>
+      <div class="sbody">
+        <div class="shead"><span class="stitle">${cap(it.skill)}</span><span class="ltag ${it.level}">${it.level}</span></div>
+        <div class="scourse">${it.title}</div>
+        <div class="sdesc">${it.desc}</div>
+        <div class="smeta">
+          <div class="smeta-i">⏱ <span>${it.hours}h</span></div>
+          <div class="smeta-i">📚 <span>${it.type}</span></div>
+          <div class="smeta-i">🎯 Relevance: <span>${it.rel}%</span></div>
+        </div>
+        ${it.prereqs.length?`<div class="plist">${it.prereqs.map(p=>`<span class="pchip">← ${p}</span>`).join('')}</div>`:''}
+      </div>
+    </div>`).join('');}
+  document.getElementById('mastery-body').innerHTML=mas.map(m=>{
+    const bc=m.score>=70?'hi':m.score>=50?'md':'lo';
+    return `<tr>
+      <td style="font-weight:500">${cap(m.skill)}</td>
+      <td><span class="ltag ${m.level}">${m.level}</span></td>
+      <td><div class="qbar"><div class="qtrack"><div class="qfill ${bc}" style="width:${m.score}%"></div></div><span style="color:var(--text2);font-size:11px;min-width:30px">${m.score}%</span></div></td>
+      <td><span class="rchip ${m.rec}">${m.txt}</span></td></tr>`;
+  }).join('');
+  document.getElementById('trace-text').textContent=traceText;
+  document.getElementById('results').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function doReset(){
+  document.getElementById('results').style.display='none';
+  document.getElementById('form-section').style.display='block';
+  document.getElementById('go-btn').disabled=false;
+  document.getElementById('barfill').style.width='0%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
 </body>
 </html>

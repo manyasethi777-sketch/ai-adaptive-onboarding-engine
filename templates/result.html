@@ -3,177 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adaptive Roadmap Result</title>
+    <title>PathForge — Adaptive Roadmap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_upgraded.css') }}">
 </head>
 <body>
-
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+ 
 <div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <div class="logo-text">PathForge</div>
+        </div>
+        <div class="badge">Adaptive Report</div>
+    </header>
+ 
     <div class="hero">
-        <h1>📊 Personalized Adaptive Learning Report</h1>
-        <p>Your roadmap is generated using skill-gap analysis + prerequisite-aware adaptive logic.</p>
+        <div class="hero-label">✦ Analysis Complete</div>
+        <h1>Your <span class="serif accent">personalized</span><br>learning <span class="accent">roadmap</span></h1>
     </div>
-
-    <!-- Metrics -->
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <h3>Match Score</h3>
-            <p>{{ match_score }}%</p>
+ 
+    <!-- Metrics Strip -->
+    <div class="section-heading">Performance Metrics</div>
+    <div class="score-strip">
+        <div class="score-card green">
+            <div class="score-label">Match Score</div>
+            <div class="score-value">{{ match_score }}%</div>
+            <div class="score-sub">of job skills matched</div>
         </div>
-        <div class="metric-card">
-            <h3>Missing Skills</h3>
-            <p>{{ gap_count }}</p>
+        <div class="score-card red">
+            <div class="score-label">Skill Gaps</div>
+            <div class="score-value">{{ gap_count }}</div>
+            <div class="score-sub">skills to acquire</div>
         </div>
-        <div class="metric-card">
-            <h3>Estimated Hours</h3>
-            <p>{{ estimated_hours }}</p>
+        <div class="score-card orange">
+            <div class="score-label">Learning Hours</div>
+            <div class="score-value">{{ estimated_hours }}h</div>
+            <div class="score-sub">estimated total</div>
         </div>
-        <div class="metric-card">
-            <h3>Dependency Score</h3>
-            <p>{{ dependency_score }}%</p>
+        <div class="score-card blue">
+            <div class="score-label">Dependency Score</div>
+            <div class="score-value">{{ dependency_score }}%</div>
+            <div class="score-sub">path integrity</div>
         </div>
-        <div class="metric-card">
-            <h3>Predicted Completion</h3>
-            <p>{{ predicted_completion }}%</p>
+        <div class="score-card purple">
+            <div class="score-label">Roadmap Steps</div>
+            <div class="score-value">{{ roadmap|length }}</div>
+            <div class="score-sub">learning modules</div>
         </div>
     </div>
-
+ 
+    <!-- Match bar -->
+    <div class="match-bar-wrap">
+        <div class="match-bar-label">
+            <span>Role Fit Score</span>
+            <span style="color:var(--accent);font-weight:600">{{ match_score }}%</span>
+        </div>
+        <div class="match-bar-track">
+            <div class="match-bar-fill" style="width:{{ match_score }}%"></div>
+        </div>
+    </div>
+ 
+    <!-- AI Summary -->
+    {% if ai_summary %}
+    <div class="section-heading">AI Analysis</div>
+    <div class="ai-analysis">
+        <p>{{ ai_summary }}</p>
+    </div>
+    {% endif %}
+ 
     <!-- Skills -->
-    <div class="grid-2">
-        <div class="card">
-            <h2>✅ Resume Skills</h2>
-            {% if resume_skills %}
-                <ul>
-                    {% for skill in resume_skills %}
-                        <li>{{ skill.title() }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No recognized skills found.</p>
-            {% endif %}
-        </div>
-
-        <div class="card">
-            <h2>🎯 Job Skills</h2>
-            {% if job_skills %}
-                <ul>
-                    {% for skill in job_skills %}
-                        <li>{{ skill.title() }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No recognized job skills found.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div class="card">
-            <h2>🟢 Matching Skills</h2>
-            {% if matched_skills %}
-                <ul>
-                    {% for skill in matched_skills %}
-                        <li>{{ skill.title() }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No matching skills found.</p>
-            {% endif %}
-        </div>
-
-        <div class="card">
-            <h2>🔴 Missing Job Skills</h2>
-            {% if missing_job_skills %}
-                <ul>
-                    {% for skill in missing_job_skills %}
-                        <li>{{ skill.title() }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>Great! No missing skills.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Adaptive Roadmap -->
-    <div class="card">
-        <h2>🛣️ Adaptive Learning Roadmap</h2>
-        {% if roadmap %}
-            <div class="roadmap">
-                {% for item in roadmap %}
-                    <div class="roadmap-step">
-                        <div class="step-badge">Step {{ item.step }}</div>
-                        <div class="step-content">
-                            <h3>{{ item.skill }}</h3>
-                            <p><strong>Course:</strong> {{ item.course_title }}</p>
-                            <p><strong>Level:</strong> {{ item.level }}</p>
-                            <p><strong>Estimated Duration:</strong> {{ item.duration }} hours</p>
-                            <p><strong>Resource Type:</strong> {{ item.resource_type }}</p>
-                            <p><strong>Description:</strong> {{ item.description }}</p>
-
-                            {% if item.prerequisites %}
-                                <p><strong>Prerequisites:</strong>
-                                    {% for p in item.prerequisites %}
-                                        {{ p.title() }}{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </p>
-                            {% else %}
-                                <p><strong>Prerequisites:</strong> None</p>
-                            {% endif %}
-
-                            <p><strong>TF-IDF Relevance to Job:</strong> {{ item.relevance_score }}%</p>
-                        </div>
-                    </div>
+    <div class="section-heading">Skill Breakdown</div>
+    <div class="skills-grid">
+        <div class="skill-panel">
+            <h3>✅ Matched Skills <span style="color:var(--accent3)">({{ matched_skills|length }})</span></h3>
+            <div class="pill-list">
+                {% for s in matched_skills %}
+                    <span class="pill match">{{ s }}</span>
+                {% else %}
+                    <span style="color:var(--text3);font-size:12px">No matches detected</span>
                 {% endfor %}
             </div>
-        {% else %}
-            <p>🎉 You already satisfy all detected job requirements.</p>
-        {% endif %}
+        </div>
+        <div class="skill-panel">
+            <h3>⚠️ Missing Skills <span style="color:var(--accent2)">({{ missing_job_skills|length }})</span></h3>
+            <div class="pill-list">
+                {% for s in missing_job_skills %}
+                    <span class="pill missing">{{ s }}</span>
+                {% else %}
+                    <span style="color:var(--accent3);font-size:12px">✓ All job skills matched!</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="skill-panel">
+            <h3>📋 Your Skills</h3>
+            <div class="pill-list">
+                {% for s in resume_skills %}
+                    <span class="pill resume">{{ s }}</span>
+                {% else %}
+                    <span style="color:var(--text3);font-size:12px">No recognized skills found</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="skill-panel">
+            <h3>🎯 Job Requires</h3>
+            <div class="pill-list">
+                {% for s in job_skills %}
+                    <span class="pill neutral">{{ s }}</span>
+                {% else %}
+                    <span style="color:var(--text3);font-size:12px">No recognized skills found</span>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-
-    <!-- Mastery Simulation -->
-    <div class="card">
-        <h2>🧠 Adaptive Mastery Feedback (Quiz Simulation)</h2>
-        {% if mastery_data %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Skill</th>
-                        <th>Quiz Score</th>
-                        <th>Adaptive Recommendation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in mastery_data %}
-                        <tr>
-                            <td>{{ row.skill }}</td>
-                            <td>{{ row.quiz_score }}%</td>
-                            <td>{{ row.recommendation }}</td>
-                        </tr>
+ 
+    <!-- Roadmap -->
+    <div class="section-heading">Adaptive Learning Roadmap</div>
+    {% if roadmap %}
+    <div class="roadmap-container">
+        {% for item in roadmap %}
+        <div class="roadmap-item">
+            <div class="step-col step-line">
+                <div class="step-num {{ item.level|lower }}">{{ item.step }}</div>
+            </div>
+            <div class="step-body">
+                <div class="step-header">
+                    <span class="step-title">{{ item.skill.title() }}</span>
+                    <span class="level-tag {{ item.level|lower }}">{{ item.level }}</span>
+                </div>
+                <div class="step-course">{{ item.course_title }}</div>
+                <div class="step-desc">{{ item.description }}</div>
+                <div class="step-meta">
+                    <div class="step-meta-item">⏱ <span>{{ item.duration }}h</span></div>
+                    <div class="step-meta-item">📚 <span>{{ item.resource_type }}</span></div>
+                    <div class="step-meta-item">🎯 Relevance: <span>{{ item.relevance_score }}%</span></div>
+                </div>
+                {% if item.prerequisites %}
+                <div class="prereq-list">
+                    {% for p in item.prerequisites %}
+                        <span class="prereq-chip">← {{ p }}</span>
                     {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No roadmap steps available.</p>
-        {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
     </div>
-
-    <!-- Explanation -->
-    <div class="card">
-        <h2>💡 How the Adaptive Logic Works</h2>
-        <ul>
-            <li>First, the system extracts skills from the resume and job description.</li>
-            <li>Then it identifies missing job-relevant skills.</li>
-            <li>Next, it automatically adds prerequisite skills that the learner may also need.</li>
-            <li>It generates a dependency-aware ordered roadmap so foundational skills come before advanced ones.</li>
-            <li>Finally, it estimates time, computes metrics, and simulates mastery-based adaptive progression.</li>
+    {% else %}
+    <div style="padding:32px;text-align:center;color:var(--accent3);font-family:'Syne',sans-serif;font-size:20px">
+        🎉 You already satisfy all detected job requirements!
+    </div>
+    {% endif %}
+ 
+    <!-- Mastery Table -->
+    <div class="section-heading">Mastery Feedback</div>
+    {% if mastery_data %}
+    <table class="mastery-table">
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Level</th>
+                <th>Quiz Score</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in mastery_data %}
+            <tr>
+                <td style="font-weight:500">{{ row.skill }}</td>
+                <td><span class="level-tag {{ row.skill|lower }}">—</span></td>
+                <td>
+                    <div class="quiz-bar">
+                        <div class="quiz-track">
+                            <div class="quiz-fill {% if row.quiz_score >= 70 %}high{% elif row.quiz_score >= 50 %}mid{% else %}low{% endif %}" style="width:{{ row.quiz_score }}%"></div>
+                        </div>
+                        <span style="color:var(--text2);font-size:11px;min-width:32px">{{ row.quiz_score }}%</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="rec-chip {% if row.quiz_score >= 70 %}go{% elif row.quiz_score >= 50 %}practice{% else %}revise{% endif %}">
+                        {{ row.recommendation }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+ 
+    <!-- Reasoning Trace -->
+    {% if reasoning_trace %}
+    <details>
+        <summary>
+            <span>🔍</span> AI Reasoning Trace
+            <span class="summary-arrow">▶</span>
+        </summary>
+        <div class="trace-inner">{{ reasoning_trace }}</div>
+    </details>
+    {% endif %}
+ 
+    <!-- How it works -->
+    <div class="card" style="margin-bottom:32px">
+        <h2 style="font-family:'Syne',sans-serif;color:var(--accent);margin-bottom:16px">💡 How PathForge Works</h2>
+        <ul style="font-size:13px;color:var(--text2);line-height:2;padding-left:20px">
+            <li>Claude AI extracts skills from your resume and job description using semantic understanding — not just keyword matching</li>
+            <li>It identifies the gap between your current skills and what the role requires</li>
+            <li>A topological sort with prerequisite expansion ensures you learn foundational skills before advanced ones</li>
+            <li>TF-IDF relevance scoring ranks how closely each course aligns with the specific job description</li>
+            <li>Mastery simulation provides adaptive feedback at each learning step</li>
         </ul>
     </div>
-
+ 
     <div class="back-btn">
-        <a href="/">← Analyze Another Resume</a>
+        <a href="/" style="color:var(--accent);text-decoration:none;font-family:'Syne',sans-serif;font-weight:600">← Analyze Another Resume</a>
     </div>
 </div>
-
 </body>
 </html>
+ 
