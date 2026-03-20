@@ -1,4 +1,4 @@
-# ai-adaptive-onboarding-engine
+# AI-adaptive-onboarding-engine
 # 🛤️ PathForge — AI Adaptive Onboarding Engine
 
 > **Hackathon: ARTPARK CodeForge**  
